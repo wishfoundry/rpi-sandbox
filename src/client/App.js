@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import './app.css';
+import LaunchButton from './LaunchButton';
+
+import './app.scss';
 
 export default class App extends Component {
   constructor(props) {
@@ -16,11 +18,8 @@ export default class App extends Component {
   render() {
     return (
       <div>
-        {this.state.username ? (
-          <h1>Hello {this.state.username}</h1>
-        ) : (
-          <h1>Loading.. please wait!</h1>
-        )}
+        <h1>Nuclear Needle 3000</h1>
+        <LaunchButton />
       </div>
     );
   }

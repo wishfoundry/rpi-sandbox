@@ -9,8 +9,10 @@ html,body{
 
 
 
-.pulse-button, .pulse-able, .pb-button {
-  border: none;
+.pulse-button, 
+.pulse-able, 
+.pb-container:not(.loading):not(.success) .pb-button {
+  
   box-shadow: 0 0 0 0 rgba(232, 76, 61, 0.7);
   background-size:cover;
   background-repeat: no-repeat;
@@ -22,6 +24,7 @@ html,body{
 }
 
 .pulse-button {
+  border: none;
   position: relative;
   width: 100px;
   height: 100px;

@@ -1,16 +1,63 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import Button, { STATE } from 'react-progress-button';
+// import Socket from 'ws';
+import Sockette from 'sockette';
 import './progress-button.scss';
 
-const { LOADING, NOTHING, DISABLED, SUCCESS, ERROR } = STATE
+const {
+    LOADING,
+    NOTHING,
+    DISABLED,
+    SUCCESS,
+    ERROR
+} = STATE;
+
+const messageStyles = {
+    color: 'white'
+};
 
 export default class LaunchButton extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            status: NOTHING
+            status: NOTHING,
+            message: ''
         };
+    }
+
+    componentWillMount() {
+        //*
+        this.ws = new Sockette('ws://localhost:8080', {
+            onmessage: (msg) => {
+                console.log('message received', msg);
+                this.onMessage(JSON.parse(msg.data));
+            },
+            onopen() {
+                console.info('opened ws')
+            },
+            onclose() {
+                console.info('closed ws')
+            },
+            onerror(e) {
+                console.error('ws error');
+                console.error(e);
+            }
+        });
+    }
+
+    componentWillUnmount() {
+        this.ws.close();
+    }
+
+    onMessage({ message, progress }) {
+
+        if (progress === 100) {
+            setTimeout(() => this.setState({ status: SUCCESS, message: '' }), 500);
+        }
+        this.setState({
+            message,
+        });
     }
 
     onStart = () => {
@@ -18,20 +65,25 @@ export default class LaunchButton extends Component {
             status: LOADING
         });
 
-        setTimeout(() => {
-            this.setState({
-                status: SUCCESS
-            });
-        }, 3000)
+        this.ws.send(JSON.stringify({ command: 'begin' }));
+    }
+
+    onCancel = () => {
+        this.ws.send(JSON.stringify({ command: 'cancel' }));
     }
 
     render() {
-        const { status } = this.state
+        const { status, message } = this.state;
         return (
-            <Button onClick={this.onStart} state={status}>
-                Ignite!
-            </Button>
-            
-        )
+          <Fragment>
+              <Button
+                  onClick={this.onStart}
+                  state={status}
+                >
+                    Ignite!
+                </Button>
+              <span style={messageStyles}>{ message }</span>
+            </Fragment>
+        );
     }
 }

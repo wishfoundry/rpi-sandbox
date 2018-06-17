@@ -13,7 +13,8 @@ const {
 } = STATE;
 
 const messageStyles = {
-    color: 'white'
+    color: 'white',
+    textAlign: 'center'
 };
 
 export default class LaunchButton extends Component {
@@ -50,7 +51,14 @@ export default class LaunchButton extends Component {
         this.ws.close();
     }
 
-    onMessage({ message, progress }) {
+    onMessage({ message, progress, type }) {
+
+        if (type === 'error') {
+            return this.setState({
+                message,
+                status: ERROR,
+            });
+        }
 
         if (progress === 100) {
             setTimeout(() => this.setState({ status: SUCCESS, message: '' }), 500);

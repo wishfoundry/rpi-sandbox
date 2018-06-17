@@ -5,7 +5,7 @@ const attemptCycle = require('./runCycle');
 
 
 const expressWs = addWsSupport(express());
-const app = expressWs.app;
+const { app } = expressWs;
 
 
 app.use(express.static('dist'));
@@ -14,7 +14,7 @@ app.get('/api/getUsername', (req, res) => {
     res.send({ username: os.userInfo().username });
 });
 
-app.ws('/', (ws, request) => {
+app.ws('/', (ws) => {
     const update = data => ws.send(JSON.stringify(data));
 
 

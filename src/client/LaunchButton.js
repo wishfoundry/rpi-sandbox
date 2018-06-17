@@ -83,14 +83,16 @@ export default class LaunchButton extends Component {
     render() {
         const { status, message } = this.state;
         return (
-          <Fragment>
-              <Button
-                  onClick={this.onStart}
-                  state={status}
+            <Fragment>
+                <Button
+                    onClick={this.onStart}
+                    state={status}
                 >
                     Ignite!
                 </Button>
-              <span style={messageStyles}>{ message }</span>
+                <div style={messageStyles}>
+                    <span style={messageStyles}>{message}</span>
+                </div>
             </Fragment>
         );
     }

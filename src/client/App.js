@@ -18,7 +18,7 @@ export default class App extends Component {
   render() {
     return (
       <div>
-        <h1>Nuclear Needle 3000</h1>
+        <h1>hermedex</h1>
         <LaunchButton />
       </div>
     );

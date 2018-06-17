@@ -88,7 +88,7 @@ export default class LaunchButton extends Component {
                     onClick={this.onStart}
                     state={status}
                 >
-                    Ignite!
+                    Start
                 </Button>
                 <div style={messageStyles}>
                     <span style={messageStyles}>{message}</span>

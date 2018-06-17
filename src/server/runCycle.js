@@ -45,7 +45,7 @@ async function runCycle(sendMessage) {
     };
 
     try {
-        setupPins();
+        await setupPins();
 
         send(PROGRESS, 'starting cycle', 1);
         await waitFor(1);

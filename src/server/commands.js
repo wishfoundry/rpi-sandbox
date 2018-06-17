@@ -117,7 +117,7 @@ const GpioPin = ioNumber => GPIO[ioNumber];
 const DOOR_LOCK_ACTUATOR = GpioPin(4); // brown wire
 const VACUUM_HI = GpioPin(17); // red
 const VACUUM_LOW = GpioPin(18); // blue
-const SEAL_ACUATOR = GpioPin(27); // white
+const SEAL_ACUATOR = GpioPin(24); // white
 const FAN = GpioPin(22); // purple
 const HEATER = GpioPin(23); // grey
 

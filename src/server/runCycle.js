@@ -1,3 +1,4 @@
+/* eslint-disable no-trailing-spaces, no-await-in-loop */
 const cmd = require('./commands');
 
 const {
@@ -12,8 +13,8 @@ const {
     turnFanOff,
     activateSeal,
     deactivateSeal,
-    activateBagSeal,
-    deactivateBagSeal,
+    activateBagSeal, // eslint-disable-line
+    deactivateBagSeal, // eslint-disable-line
     lockDoor,
     unlockDoor,
     isDoorClosed
@@ -39,7 +40,8 @@ async function runCycle(update) {
     const send = (type, msg, progress) => {
         console.log(msg);
         update(toMessage(type, msg, progress));
-    }
+    };
+
     try {
         setupPins();
 
@@ -47,7 +49,7 @@ async function runCycle(update) {
         await waitFor(1);
         send(PROGRESS, 'locking door', 2);
         await lockDoor();
-        console.log('door lock activated');
+        
         await waitFor(1);
         const isClosed = await isDoorClosed();
         if (!isClosed) {
@@ -59,10 +61,12 @@ async function runCycle(update) {
         await waitFor(0.3);
         send(PROGRESS, 'door lock success', 3);
         
-        await turnVacuumLo();
-        await activateSeal();
-        await turnFanOn();
-        await turnHeaterOn();
+        await Promise.all([
+            turnVacuumLo(),
+            activateSeal(),
+            turnFanOn(),
+            turnHeaterOn()
+        ]);
         
         send(PROGRESS, 'heating', 5);
         // wait for 10 minutes, update every minute
@@ -101,7 +105,9 @@ async function runCycle(update) {
 }
 
 let isRunning = false;
-const enable = () => isRunning = false;
+const enable = () => {
+    isRunning = false;
+};
 
 const attemptCycle = (update) => {
     if (isRunning) return;

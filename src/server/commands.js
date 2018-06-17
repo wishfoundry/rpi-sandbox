@@ -1,22 +1,25 @@
-/* eslint-disable spaced-comment */
-/*
-const io = require('rpi-gpio');
-/*/
-const io = {
-    setup(pin, mode, cb) {
-        setTimeout(() => cb(), 1);
-    },
-    destroy(cb) {
-        setTimeout(() => cb(), 1);
-    },
-    write(pin, value, cb) {
-        setTimeout(() => cb(), 1);
-    },
-    read(pin, cb) {
-        setTimeout(() => cb(null, 1), 1);
-    },
-};
-//*/
+let io;
+if (process.platform === 'darwin' || process.platform === 'win32') {
+    // if not on rasberry, setup dummy gpio
+    io = {
+        setup(pin, mode, cb) {
+            setTimeout(() => cb(), 1);
+        },
+        destroy(cb) {
+            setTimeout(() => cb(), 1);
+        },
+        write(pin, value, cb) {
+            setTimeout(() => cb(), 1);
+        },
+        read(pin, cb) {
+            setTimeout(() => cb(null, 1), 1);
+        },
+    };
+} else {
+    /* eslint-disable-next-line  */
+    io = require('rpi-gpio');
+}
+
 
 const writePin = (pin, value) => new Promise((resolve, reject) => {
     io.write(pin, value, err => (err ? reject(err) : resolve()));
@@ -76,7 +79,7 @@ pin 40: GPIO 21
 */
 // GPIO# to pin#
 const GPIO = {
-    //1
+    // 1
     2: 3,
     3: 5,
     4: 7,
@@ -84,7 +87,7 @@ const GPIO = {
     6: 31,
     7: 26,
     8: 24,
-    //9
+    // 9
     10: 19,
     11: 23,
     12: 32,

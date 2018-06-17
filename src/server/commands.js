@@ -20,6 +20,9 @@ if (process.platform === 'darwin' || process.platform === 'win32') {
     io = require('rpi-gpio');
 }
 
+const utils = require('./utils');
+const waitFor = utils.waitFor;
+
 
 const writePin = (pin, value) => new Promise((resolve, reject) => {
     io.write(pin, value, err => (err ? reject(err) : resolve()));
@@ -111,15 +114,16 @@ const GpioPin = ioNumber => GPIO[ioNumber];
 
 // = pin definition ==================================================
 
-const DOOR_LOCK_ACTUATOR = GpioPin(0);
+const DOOR_LOCK_ACTUATOR = GpioPin(4); // brown wire
+const VACUUM_HI = GpioPin(17); // red
+const VACUUM_LOW = GpioPin(18); // blue
+const SEAL_ACUATOR = GpioPin(27); // white
+const FAN = GpioPin(22); // purple
+const HEATER = GpioPin(23); // grey
+
 const DOOR_LOCK_SENSOR = GpioPin(0);
-const VACUUM_HI = GpioPin(0);
-const VACUUM_LOW = GpioPin(0);
-const SEAL_ACUATOR = GpioPin(0);
-const BAG_SEAL_ACTUATOR = GpioPin(0);
-const FAN = GpioPin(0);
 const TEMP_SENSOR = GpioPin(0);
-const HEATER = GpioPin(0);
+const BAG_SEAL_ACTUATOR = GpioPin(0);
 
 const ON = 1;
 const OFF = 0;
@@ -147,9 +151,22 @@ const cleanUp = () => new Promise((resolve, reject) =>
 // = commands ========================================================
 
 
-const lockDoor = () => writePin(DOOR_LOCK_ACTUATOR, ON);
-const unlockDoor = () => writePin(DOOR_LOCK_ACTUATOR, OFF);
-const isDoorClosed = () => readPin(DOOR_LOCK_SENSOR).then(value => value === ON);
+const lockDoor = () => 
+    writePin(DOOR_LOCK_ACTUATOR, ON)
+        .then(() => waitFor(4))
+        .then(function() {
+            return writePin(DOOR_LOCK_ACTUATOR, OFF)
+        })
+
+const unlockDoor = async () => { 
+    await writePin(DOOR_LOCK_ACTUATOR, ON)
+    await waitFor(4)
+    await writePin(DOOR_LOCK_ACTUATOR, OFF)
+};
+
+// disable sensors for now :(
+// const isDoorClosed = () => readPin(DOOR_LOCK_SENSOR).then(value => value === ON);
+const isDoorClosed = () => Promise.resolve(true)
 
 const turnVacuumHi = () =>
     writePin(VACUUM_LOW, OFF)

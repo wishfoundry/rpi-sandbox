@@ -1,4 +1,5 @@
 /* eslint-disable no-trailing-spaces, no-await-in-loop */
+const utils = require('./utils');
 const cmd = require('./commands');
 
 const {
@@ -20,10 +21,9 @@ const {
     isDoorClosed
 } = cmd;
 
-const waitFor = seconds =>
-    new Promise(resolve =>
-        setTimeout(() => resolve(), Math.floor(seconds * 1000)));
+const waitFor = utils.waitFor;
 
+// = message helpers =================================================
 
 const ERROR = 'error';
 const PROGRESS = 'progress';
@@ -36,10 +36,12 @@ const toMessage = (type, message, progress = 0) => ({
 });
 
 
-async function runCycle(update) {
+// = actual routine ===================================================
+
+async function runCycle(sendMessage) {
     const send = (type, msg, progress) => {
         console.log(msg);
-        update(toMessage(type, msg, progress));
+        sendMessage(toMessage(type, msg, progress));
     };
 
     try {
@@ -50,13 +52,14 @@ async function runCycle(update) {
         send(PROGRESS, 'locking door', 2);
         await lockDoor();
         
-        await waitFor(1);
-        const isClosed = await isDoorClosed();
-        if (!isClosed) {
-            send(ERROR, 'cannot close door', 100);
-            console.log('door lock failed');
-            throw new Error('cannot close door');
-        }
+        
+        // await waitFor(1);
+        // const isClosed = await isDoorClosed();
+        // if (!isClosed) {
+        //     send(ERROR, 'cannot close door', 100);
+        //     console.log('door lock failed');
+        //     throw new Error('cannot close door');
+        // }
 
         await waitFor(0.3);
         send(PROGRESS, 'door lock success', 3);
@@ -104,6 +107,8 @@ async function runCycle(update) {
     cleanUp();
 }
 
+// = small helper to prevent multiple cycles simultaneously ========
+
 let isRunning = false;
 const enable = () => {
     isRunning = false;
@@ -117,5 +122,7 @@ const attemptCycle = (update) => {
         .then(enable)
         .catch(enable);
 };
+
+// = export this function to be used by server =====================
 
 module.exports = attemptCycle;

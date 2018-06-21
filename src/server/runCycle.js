@@ -74,7 +74,7 @@ async function runCycle(sendMessage) {
         send(PROGRESS, 'heating', 5);
         // wait for 10 minutes, update every minute
         for (let i = 0; i < 10; i += 1) {
-            await waitFor(30);
+            await waitFor(1);
             send(PROGRESS, `heating${'.'.repeat(i)}`, 5);
         }
 

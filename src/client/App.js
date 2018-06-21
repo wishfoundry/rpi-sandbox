@@ -18,7 +18,7 @@ export default class App extends Component {
   render() {
     return (
       <div>
-        <h1>hermedex</h1>
+        <h1>Hermedex Sharps Disposer</h1>
         <LaunchButton />
       </div>
     );

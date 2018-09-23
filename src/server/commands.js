@@ -1,6 +1,7 @@
 let io;
 if (process.platform === 'darwin' || process.platform === 'win32') {
     // if not on rasberry, setup dummy gpio
+    console.log('using fake io')
     io = {
         setup(pin, mode, cb) {
             setTimeout(() => cb(), 1);
@@ -16,8 +17,10 @@ if (process.platform === 'darwin' || process.platform === 'win32') {
         },
     };
 } else {
+    console.log('using rpi-gpio')
     /* eslint-disable-next-line  */
     io = require('rpi-gpio');
+    io.setMode(io.MODE_BCM)
 }
 
 const utils = require('./utils');
@@ -110,40 +113,7 @@ const GPIO = {
     26: 37
 };
 
-const GpioPin = ioNumber => GPIO[ioNumber];
-
-// = pin definition ==================================================
-
-const DOOR_LOCK_ACTUATOR = GpioPin(4); // brown wire
-const VACUUM_HI = GpioPin(17); // red
-const VACUUM_LOW = GpioPin(18); // blue
-const SEAL_ACUATOR = GpioPin(24); // white
-const FAN = GpioPin(22); // purple
-const HEATER = GpioPin(23); // grey
-
-const DOOR_LOCK_SENSOR = GpioPin(0);
-const TEMP_SENSOR = GpioPin(0);
-const BAG_SEAL_ACTUATOR = GpioPin(0);
-
-const ON = 1;
-const OFF = 0;
-
-// = pin setup =============
-
-const INPUT = io.DIR_IN;
-const OUTPUT = io.DIR_OUT;
-
-const setupPins = () => Promise.all([
-    setupPin(DOOR_LOCK_ACTUATOR, OUTPUT),
-    setupPin(DOOR_LOCK_SENSOR, INPUT),
-    setupPin(VACUUM_HI, OUTPUT),
-    setupPin(VACUUM_LOW, OUTPUT),
-    setupPin(SEAL_ACUATOR, OUTPUT),
-    setupPin(BAG_SEAL_ACTUATOR, OUTPUT),
-    setupPin(FAN, OUTPUT),
-    setupPin(TEMP_SENSOR, INPUT),
-    setupPin(HEATER, OUTPUT)
-]);
+const GpioPin = ioNumber => ioNumber; // GPIO[ioNumber];
 
 const cleanUp = () => new Promise((resolve, reject) =>
     io.destroy(err => (err ? reject(err) : resolve())));
@@ -151,64 +121,11 @@ const cleanUp = () => new Promise((resolve, reject) =>
 // = commands ========================================================
 
 
-const lockDoor = () => 
-    writePin(DOOR_LOCK_ACTUATOR, ON)
-        .then(() => waitFor(4))
-        .then(function() {
-            return writePin(DOOR_LOCK_ACTUATOR, OFF)
-        })
-
-const unlockDoor = async () => { 
-    await writePin(DOOR_LOCK_ACTUATOR, ON)
-    await waitFor(4)
-    await writePin(DOOR_LOCK_ACTUATOR, OFF)
-};
-
-// disable sensors for now :(
-// const isDoorClosed = () => readPin(DOOR_LOCK_SENSOR).then(value => value === ON);
-const isDoorClosed = () => Promise.resolve(true)
-
-const turnVacuumHi = () =>
-    writePin(VACUUM_LOW, OFF)
-        .then(() =>
-            writePin(VACUUM_HI, ON));
-
-const turnVacuumLo = () =>
-    writePin(VACUUM_HI, OFF)
-        .then(() => writePin(VACUUM_LOW, ON));
-
-const turnVacuumOff = () => Promise.all([
-    writePin(VACUUM_HI, OFF),
-    writePin(VACUUM_LOW, OFF)
-]);
-
-const turnHeaterOn = () => writePin(HEATER, ON);
-const turnHeaterOff = () => writePin(HEATER, OFF);
-
-const activateSeal = () => writePin(SEAL_ACUATOR, ON);
-const deactivateSeal = () => writePin(SEAL_ACUATOR, OFF);
-
-const activateBagSeal = () => writePin(BAG_SEAL_ACTUATOR, ON);
-const deactivateBagSeal = () => writePin(BAG_SEAL_ACTUATOR, OFF);
-
-const turnFanOn = () => writePin(FAN, ON);
-const turnFanOff = () => writePin(FAN, OFF);
 
 module.exports = {
-    setupPins,
+    writePin,
+    io,
+    setupPin,
     cleanUp,
-    turnHeaterOff,
-    turnHeaterOn,
-    turnVacuumHi,
-    turnVacuumLo,
-    turnVacuumOff,
-    turnFanOn,
-    turnFanOff,
-    activateSeal,
-    deactivateSeal,
-    activateBagSeal,
-    deactivateBagSeal,
-    lockDoor,
-    unlockDoor,
-    isDoorClosed
+
 };

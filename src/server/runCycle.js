@@ -3,25 +3,56 @@ const utils = require('./utils');
 const cmd = require('./commands');
 
 const {
-    setupPins,
     cleanUp,
-    turnHeaterOff,
-    turnHeaterOn,
-    turnVacuumHi,
-    turnVacuumLo,
-    turnVacuumOff,
-    turnFanOn,
-    turnFanOff,
-    activateSeal,
-    deactivateSeal,
-    activateBagSeal, // eslint-disable-line
-    deactivateBagSeal, // eslint-disable-line
-    lockDoor,
-    unlockDoor,
-    isDoorClosed
+    setupPin,
+    writePin,
+    io
 } = cmd;
 
+const ON = false;
+const OFF = true;
+const OUTPUT = io.DIR_HIGH;
+const INPUT = io.DIR_IN;
+
 const waitFor = utils.waitFor;
+
+const PID1 = 18;
+const PID2 = 17;
+const CHAMBER_OPEN = 12;
+const CHAMBER_CLOSE = 26;
+const VAC = 4;
+const CABINET_FAN = 16;
+const RADIATOR_FAN = 21;
+const HOT_FAN = 13;
+const BAG_CLOSE = 22;
+const BAG_OPEN = 23;
+const COOLING_VENT_OPEN = 19;
+const COOLING_VENT_CLOSE = 20;
+
+async function actuator(open, openPin, closePin, seconds, mode = OUTPUT) {
+    await setupPin(closePin, mode);
+    await setupPin(openPin, mode);
+    await writePin(open ? closePin : openPin, OFF);
+    await writePin(open ? openPin : closePin, ON);
+    await waitFor(seconds);
+    await writePin(open ? openPin : closePin, OFF);
+}
+
+const openChamber = async (open = true) =>
+    await actuator(open, CHAMBER_OPEN, CHAMBER_CLOSE, 7);
+
+const openBag = async (open = true) =>
+    await actuator(open, BAG_OPEN, BAG_CLOSE, 13);
+
+const openCoolingVent = async (open = true) =>
+    await actuator(open, COOLING_VENT_OPEN, COOLING_VENT_CLOSE, 7);
+
+async function setupAllPins() {
+    await setupPin(HOT_FAN, io.DIR_HIGH)
+    await setupPin(CABINET_FAN, io.DIR_HIGH)
+    await setupPin(RADIATOR_FAN, io.DIR_HIGH)
+    await setupPin(VAC, io.DIR_HIGH)
+}
 
 // = message helpers =================================================
 
@@ -36,7 +67,25 @@ const toMessage = (type, message, progress = 0) => ({
 });
 
 
+
+async function cycle(pin, times = 3) {
+    await setupPin(pin, OUTPUT);
+    for (let i = 0; times > i; i++) {
+        await writePin(pin, ON);
+        await waitFor(1)
+        await writePin(pin, OFF);
+    }
+}
+
+async function once(pin, time = 3, mode = OUTPUT) {
+    await setupPin(pin, mode);
+    await writePin(pin, ON);
+    await waitFor(time)
+    await writePin(pin, OFF);
+}
+
 // = actual routine ===================================================
+const DEVMODE = false
 
 async function runCycle(sendMessage) {
     const send = (type, msg, progress) => {
@@ -44,67 +93,75 @@ async function runCycle(sendMessage) {
         sendMessage(toMessage(type, msg, progress));
     };
 
+    const notify = (msg, prog) => send(PROGRESS, msg, prog)
+
+    const log = (msg, progress = 50) => {
+        if (DEVMODE) {
+            send(PROGRESS, msg, progress)
+        } else {
+            console.log(msg);
+        }
+    }
+
+
     try {
-        await setupPins();
 
-        send(PROGRESS, 'starting cycle', 1);
-        await waitFor(1);
-        send(PROGRESS, 'locking door', 2);
-        await lockDoor();
+        await setupAllPins()
+        notify('initialized, starting SCF', 1)
+
+        await writePin(CABINET_FAN, ON);
+        notify('closing chamber', 2)
+        await waitFor(1)
+        await openChamber(false); // close chamber
+        notify('turn fan on', 3)
+        await writePin(HOT_FAN, ON);
+        await waitFor(1)
         
+        notify('starting heating process 1', 5)
+        await once(PID1, 10 * 60)
+
+        notify('starting heating process 2', 10)
+        await once(PID2, 10 * 60)
+
+        notify('closing bag', 50)
+        await openBag(false) // close bag
+        notify('begin cooling process', 55)
+        await writePin(RADIATOR_FAN, ON)
+        notify('opening vent', 58)
+        await openCoolingVent() // open vent actuator
+        notify('vacuum on', 60)
+        await writePin(VAC, ON)
+
+        await waitFor(1 * 60) // pause 10 minutes
+        notify('opening bag', 65)
+        await openBag(true) // open bag
+        notify('cooling', 70)
+        await waitFor(10 * 60)
+        log('cooling complete', 80)
+        await writePin(HOT_FAN, OFF)
+        await writePin(VAC, OFF)
+
+        log('closing cooling vent', 85)
+        await openCoolingVent(false) // close vent
+        await writePin(RADIATOR_FAN, OFF)
+        log('opening chamber', 90)
+        await openChamber(true) // open chamber
         
-        // await waitFor(1);
-        // const isClosed = await isDoorClosed();
-        // if (!isClosed) {
-        //     send(ERROR, 'cannot close door', 100);
-        //     console.log('door lock failed');
-        //     throw new Error('cannot close door');
-        // }
+        await writePin(CABINET_FAN, OFF)
 
-        await waitFor(0.3);
-        send(PROGRESS, 'door lock success', 3);
-        
-        await Promise.all([
-            turnVacuumLo(),
-            activateSeal(),
-            turnFanOn(),
-            turnHeaterOn()
-        ]);
-        
-        send(PROGRESS, 'heating', 5);
-        // wait for 10 minutes, update every minute
-        for (let i = 0; i < 10; i += 1) {
-            await waitFor(2);
-            send(PROGRESS, `heating${'.'.repeat(i)}`, 5);
-        }
-
-        await turnHeaterOff();
-        await turnVacuumHi();
-
-        // wait for 10 minutes, update every minute
-        for (let i = 0; i < 10; i += 1) {
-            await waitFor(1);
-            send(PROGRESS, `cooling${'.'.repeat(i)}`, 5);
-        }
-
-        await deactivateSeal();
-
-        // wait for 10 minutes, update every minute
-        for (let i = 0; i < 10; i += 1) {
-            await waitFor(1);
-            send(PROGRESS, `still cooling${'.'.repeat(i)}`, 5);
-        }
-
-        await turnFanOff();
-        await turnVacuumOff();
-        await unlockDoor();
 
         send(DONE, 'completed', 100);
+        
     } catch (e) {
         console.error(e);
     }
 
-    cleanUp();
+    try {
+        await cleanUp();
+        console.log('__cleanup__')
+    } catch(e) {
+        console.error(e);
+    }
 }
 
 // = small helper to prevent multiple cycles simultaneously ========

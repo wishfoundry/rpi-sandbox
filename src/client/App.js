@@ -20,6 +20,9 @@ function ToggleBtn(props) {
 }
 
 class Devtools extends Component {
+  state = {
+    forceUpdate: ''
+  }
 
   fields = [
     { label: 'Label', name: 'label', value: 'Hermedex Sharps Disposer' },
@@ -30,7 +33,12 @@ class Devtools extends Component {
   ]
 
   runUpdate() {
-    fetch('/api/forceupdate')
+    fetch('/api/force-update')
+      .then((res) => {
+        this.setState({
+          forceUpdate: JSON.stringify(res.json())
+        })
+      })
     //   .then(res => res.json())
     //   .then(user => this.setState({ username: user.username }));
   }
@@ -54,6 +62,7 @@ class Devtools extends Component {
         <div>
           <button onClick={this.runUpdate}>Update!</button>
         </div>
+        <pre>{this.state.forceUpdate}</pre>
       </div>
     )
   }

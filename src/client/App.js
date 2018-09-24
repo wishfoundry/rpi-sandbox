@@ -29,6 +29,8 @@ class Devtools extends Component {
     };
 
     this.runUpdate = this.runUpdate.bind(this);
+    this.saveFields = this.saveFields.bind(this);
+    this.updateField = this.updateField.bind(this);
   }
 
   runUpdate() {
@@ -50,26 +52,30 @@ class Devtools extends Component {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(this.state.fields)
+    }).then(() => {
+      location.reload();
     })
   }
 
   updateField(e) {
-    const value = e.value;
+    
     const name = e.target.name;
-    const field = this.state.fields;
+    let value = parseInt(e.target.value);
+    if (isNaN(value))
+      value = e.target.value;
 
     this.setState({
       ...this.state,
       fields: {
-        ...fields,
-        [name]: value
+        ...this.state.fields,
+        [name]: value,
       }
     })
   }
 
-  renderField({ name, value }, key) {
+  renderField({ name, value }) {
     return (
-      <div key={key}>
+      <div key={name}>
         <label>
           {name}
           <input
@@ -126,7 +132,13 @@ export default class App extends Component {
   componentDidMount() {
     fetch('/api/settings')
       .then(res => res.json())
-      .then(settings => this.setState({ settings: settings }));
+      .then(settings => {
+        debugger
+          this.setState({
+          settings: settings
+        })
+      }
+      );
   }
 
   toggleDevtools() {

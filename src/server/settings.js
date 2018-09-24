@@ -1,8 +1,7 @@
-
-module.exports = {
-    label: "Hermedex Sharps Disposer2",
-    pid1: 10 * 60,
-    pid2: 10 * 60,
-    cooldown1: 1 * 60,
-    cooldown2: 10 * 60
+{
+    "label": "Hermedix Sharps Disposer",
+    "pid1": 600,
+    "pid2": 600,
+    "cooldown1": 60,
+    "cooldown2": 600
 }

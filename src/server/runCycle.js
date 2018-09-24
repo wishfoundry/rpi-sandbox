@@ -106,6 +106,8 @@ async function runCycle(sendMessage) {
 
     try {
 
+        const settings = require('./settings');
+
         await setupAllPins()
         notify('initialized, starting SCF', 1)
 
@@ -118,10 +120,10 @@ async function runCycle(sendMessage) {
         await waitFor(1)
         
         notify('starting heating process 1', 5)
-        await once(PID1, 10 * 60)
+        await once(PID1, parseInt(settings.pid1))
 
         notify('starting heating process 2', 10)
-        await once(PID2, 10 * 60)
+        await once(PID2, parseInt(settings.pid2))
 
         notify('closing bag', 50)
         await openBag(false) // close bag
@@ -132,11 +134,11 @@ async function runCycle(sendMessage) {
         notify('vacuum on', 60)
         await writePin(VAC, ON)
 
-        await waitFor(1 * 60) // pause 10 minutes
+        await waitFor(parseInt(settings.cooldown1)) // pause 10 minutes
         notify('opening bag', 65)
         await openBag(true) // open bag
         notify('cooling', 70)
-        await waitFor(10 * 60)
+        await waitFor(parseInt(settings.cooldown2))
         log('cooling complete', 80)
         await writePin(HOT_FAN, OFF)
         await writePin(VAC, OFF)

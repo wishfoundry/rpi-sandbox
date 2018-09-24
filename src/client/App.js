@@ -20,17 +20,16 @@ function ToggleBtn(props) {
 }
 
 class Devtools extends Component {
-  state = {
-    forceUpdate: ''
-  }
 
-  fields = [
-    { label: 'Label', name: 'label', value: 'Hermedex Sharps Disposer' },
-    { label: 'Pid1', name: 'pid1', value: 10 * 60 },
-    { label: 'Pid2', name: 'pid2', value: 10 * 60 },
-    { label: 'cd1', name: 'cooldown1', value: 1 * 60 },
-    { label: 'cd2', name: 'cooldown2', value: 10 * 60 },
-  ]
+  constructor(props) {
+    super(props);
+    this.state = {
+      forceUpdate: '',
+      fields: props.settings,
+    };
+
+    this.runUpdate = this.runUpdate.bind(this);
+  }
 
   runUpdate() {
     fetch('/api/force-update')
@@ -43,10 +42,41 @@ class Devtools extends Component {
     //   .then(user => this.setState({ username: user.username }));
   }
 
-  renderField({ label, name, value }, key) {
+  saveFields() {
+    fetch('/api/settings', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(this.state.fields)
+    })
+  }
+
+  updateField(e) {
+    const value = e.value;
+    const name = e.target.name;
+    const field = this.state.fields;
+
+    this.setState({
+      ...this.state,
+      fields: {
+        ...fields,
+        [name]: value
+      }
+    })
+  }
+
+  renderField({ name, value }, key) {
     return (
       <div key={key}>
-        <label>{label} <input name={name} value={value} /></label>
+        <label>
+          {name}
+          <input
+            name={name}
+            value={value}
+            onChange={this.updateField} />
+        </label>
 
       </div>
     )
@@ -56,11 +86,15 @@ class Devtools extends Component {
       <div style={{ background: '#eee', flex: '1 1 auto'  }}>
         <h2>Settings</h2>
         {
-          this.fields.map(this.renderField)
+          Object.keys(this.state.fields).map((name) =>
+            this.renderField({ name: name, value: this.state.fields[name] }))
         }
+        <div>
+          <button onClick={this.saveFields}>Save</button>
+        </div>
         <hr/>
         <div>
-          <button onClick={this.runUpdate}>Update!</button>
+          <button onClick={this.runUpdate}>Pull Latest Backup!</button>
         </div>
         <pre>{this.state.forceUpdate}</pre>
       </div>
@@ -81,15 +115,18 @@ export default class App extends Component {
     super(props);
     this.state = {
       isDevtoolsOpen: false,
+      settings: {
+        label: 'Foo' //Hermedex Sharps Disposer
+      }
     };
 
     this.toggleDevtools = this.toggleDevtools.bind(this);
   }
 
   componentDidMount() {
-    // fetch('/api/getUsername')
-    //   .then(res => res.json())
-    //   .then(user => this.setState({ username: user.username }));
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(settings => this.setState({ settings: settings }));
   }
 
   toggleDevtools() {
@@ -97,16 +134,16 @@ export default class App extends Component {
   }
 
   render() {
-    const { isDevtoolsOpen } = this.state;
+    const { isDevtoolsOpen, settings } = this.state;
     return (
       <div style={this.containerStyle}>
         <div style={{ position: 'relative', width: isDevtoolsOpen ? '50%' : '100%' }}>
-          <h1>Hermedex Sharps Disposer</h1>
+          <h1>{settings.label}</h1>
           <LaunchButton />
           <ToggleBtn onClick={this.toggleDevtools} />
         </div>
         { isDevtoolsOpen &&
-           <Devtools />
+           <Devtools settings={settings} />
         }
       </div>
     );

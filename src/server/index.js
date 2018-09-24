@@ -3,6 +3,7 @@ const addWsSupport = require('express-ws');
 const os = require('os');
 const attemptCycle = require('./runCycle');
 const path = require('path');
+const fs = require('fs');
 const child_process = require('child_process');
 const exec = child_process.exec;
 const execSync = child_process.execSync
@@ -19,6 +20,18 @@ app.get('/api/getUsername', (req, res) => {
     res.send({ username: os.userInfo().username });
 });
 
+app.get('/api/settings', (req, res) => {
+
+    const settings = require('./settings');
+    res.send(settings);
+})
+
+app.post('/api/settings', (req, res) => {
+
+    console.log(req)
+    res.send(settings);
+})
+
 app.get('/api/force-update', (req, res) => {
 
 
@@ -26,7 +39,7 @@ app.get('/api/force-update', (req, res) => {
     execSync('git reset --hard', { cwd: cwd });
     execSync('git pull -r', { cwd: cwd });
     execSync('/home/pi/.nvm/versions/node/v8.11.3/bin/npm run build', { cwd: cwd });
-    execSync('/sbin/shutdown -r now');
+    // execSync('sudo /sbin/shutdown -r now');
 })
 
 app.ws('/', (ws) => {

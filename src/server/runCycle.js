@@ -1,4 +1,6 @@
 /* eslint-disable no-trailing-spaces, no-await-in-loop */
+const path = require('path');
+const fs = require('fs');
 const utils = require('./utils');
 const cmd = require('./commands');
 
@@ -89,11 +91,17 @@ const DEVMODE = false
 
 async function runCycle(sendMessage) {
     const send = (type, msg, progress) => {
-        console.log(msg);
         sendMessage(toMessage(type, msg, progress));
     };
 
-    const notify = (msg, prog) => send(PROGRESS, msg, prog)
+    const notify = (msg, prog) => {
+        console.log(msg);
+        if (DEVMODE) {
+            send(PROGRESS, msg, prog)
+        } else {
+            send(PROGRESS, prog + '%', prog)
+        }
+    }
 
     const log = (msg, progress = 50) => {
         if (DEVMODE) {
@@ -106,7 +114,8 @@ async function runCycle(sendMessage) {
 
     try {
 
-        const settings = require('./settings');
+        const filePath = path.resolve(__dirname, './settings.js')
+        let settings = JSON.parse(fs.readFileSync(filePath, 'utf8').replace('module.exports = ', ''));
 
         await setupAllPins()
         notify('initialized, starting SCF', 1)
@@ -151,11 +160,13 @@ async function runCycle(sendMessage) {
         
         await writePin(CABINET_FAN, OFF)
 
-
-        send(DONE, 'completed', 100);
         
     } catch (e) {
         console.error(e);
+        send(ERROR, e.toString(), 99);
+        await waitFor(5)
+    } finally {
+        send(DONE, 'completed', 100);
     }
 
     try {

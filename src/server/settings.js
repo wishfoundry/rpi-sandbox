@@ -1,7 +1,7 @@
 {
     "label": "Hermedix Sharps Disposer",
-    "pid1": 600,
-    "pid2": 600,
-    "cooldown1": 60,
-    "cooldown2": 600
+    "pid1": 6,
+    "pid2": 6,
+    "cooldown1": 6,
+    "cooldown2": 6
 }

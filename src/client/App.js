@@ -133,7 +133,6 @@ export default class App extends Component {
     fetch('/api/settings')
       .then(res => res.json())
       .then(settings => {
-        debugger
           this.setState({
           settings: settings
         })

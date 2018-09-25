@@ -38,15 +38,39 @@ app.post('/api/settings', (req, res) => {
     res.send({ success: true });
 })
 
-app.get('/api/force-update', (req, res) => {
+const update = (req, res) => {
+    /*
+    setTimeout(() => {
+        res.send({ message: 'success' })
+    }, 3000)
+    /*/
+    try {
+        const cwd = path.resolve(__dirname, '../../');
+        execSync('git reset --hard', { cwd: cwd });
+        execSync('git pull -r', { cwd: cwd });
+        // execSync('/home/pi/.nvm/versions/node/v8.11.3/bin/npm run build', { cwd: cwd });
+        // execSync('sudo /sbin/shutdown -r now');
+        res.send({ message: 'success' })
+    } catch(e) {
+        res.send({ error: e.toString() })
+    }
+    //*/
+}
 
+app.get('/api/force-update', update)
+app.get('/api/pull-latest', update)
 
-    const cwd = path.resolve(__dirname, '../../');
-    execSync('git reset --hard', { cwd: cwd });
-    execSync('git pull -r', { cwd: cwd });
-    execSync('/home/pi/.nvm/versions/node/v8.11.3/bin/npm run build', { cwd: cwd });
-    // execSync('sudo /sbin/shutdown -r now');
+app.get('/api/rebuild', (req, res) => {
+    try {
+        const cwd = path.resolve(__dirname, '../../');
+        execSync('/home/pi/.nvm/versions/node/v8.11.3/bin/npm run build', { cwd: cwd });
+        // execSync('sudo /sbin/shutdown -r now');
+        res.send({ message: 'success' })
+    } catch(e) {
+        res.send({ error: e.toString() })
+    }
 })
+
 
 app.ws('/', (ws) => {
     const update = data => ws.send(JSON.stringify(data));

@@ -1,5 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import LaunchButton from './LaunchButton';
+import AppUpdater from './AppUpdater';
+import AppBuilder from './AppBuilder';
 
 import './app.scss';
 
@@ -89,7 +91,7 @@ class Devtools extends Component {
   }
   render() {
     return (
-      <div style={{ background: '#eee', flex: '1 1 auto'  }}>
+      <div style={{ background: '#eee', flex: '1 1 auto', maxWidth: '50%'  }}>
         <h2>Settings</h2>
         {
           Object.keys(this.state.fields).map((name) =>
@@ -100,7 +102,8 @@ class Devtools extends Component {
         </div>
         <hr/>
         <div>
-          <button onClick={this.runUpdate}>Pull Latest Backup!</button>
+          <AppUpdater />
+          <AppBuilder />
         </div>
         <pre>{this.state.forceUpdate}</pre>
       </div>

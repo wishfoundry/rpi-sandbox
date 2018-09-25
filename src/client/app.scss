@@ -47,3 +47,112 @@ html,body, #root {
 @-moz-keyframes pulse {to {box-shadow: 0 0 0 45px rgba(232, 76, 61, 0);}}
 @-ms-keyframes pulse {to {box-shadow: 0 0 0 45px rgba(232, 76, 61, 0);}}
 @keyframes pulse {to {box-shadow: 0 0 0 45px rgba(232, 76, 61, 0);}}
+
+
+$devColor: red;
+
+.dev-container:not(.loading):not(.success) .dev-button {
+  box-shadow: 0 0 0 0 $devColor;
+  background-size:cover;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.dev-container {
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+}
+
+.dev-container .dev-button {
+  background: transparent;
+  border: 2px solid $devColor;
+  border-radius: 27px;
+  color: $devColor;
+  cursor: pointer;
+  padding: 0.2em 1em;
+  text-decoration: none;
+  text-align: center;
+  height: 36px;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  transition: background-color 0.3s, width 0.3s, border-width 0.3s, border-color 0.3s, border-radius 0.3s;
+}
+
+.dev-container .dev-button span {
+  display: inherit;
+  transition: opacity 0.3s 0.1s;
+  font-size: 2em;
+  font-weight: 100;
+}
+.dev-container .dev-button svg {
+  height: 54px;
+  width: 54px;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.dev-container .dev-button svg path {
+  opacity: 0;
+  fill: none;
+}
+
+
+.dev-container .dev-button svg.dev-progress-circle {
+  animation: spin 0.9s infinite cubic-bezier(0.085, 0.260, 0.935, 0.710);
+}
+.dev-container .dev-button svg.dev-progress-circle path {
+  stroke: $devColor;
+  stroke-width: 5;
+}
+.dev-container .dev-button svg.dev-checkmark path,
+.dev-container .dev-button svg.dev-cross path {
+  stroke: #fff;
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+.dev-container.disabled .dev-button {
+  cursor: not-allowed;
+}
+.dev-container.loading .dev-button {
+  width: 54px;
+  border-width: 6.5px;
+  border-color: #ddd;
+  cursor: wait;
+  background-color: transparent;
+  padding: 0;
+}
+.dev-container.loading .dev-button span {
+  transition: all 0.15s;
+  opacity: 0;
+  display: none;
+}
+.dev-container.loading .dev-button .dev-progress-circle > path {
+  transition: opacity 0.15s 0.3s;
+  opacity: 1;
+}
+.dev-container.success .dev-button {
+  border-color: #A0D468;
+  background-color: #A0D468;
+}
+.dev-container.success .dev-button span {
+  transition: all 0.15s;
+  opacity: 0;
+  display: none;
+}
+.dev-container.success .dev-button .dev-checkmark > path {
+  opacity: 1;
+}
+.dev-container.error .dev-button {
+  border-color: #ED5565;
+  background-color: #ED5565;
+}
+.dev-container.error .dev-button span {
+  transition: all 0.15s;
+  opacity: 0;
+  display: none;
+}
+.dev-container.error .dev-button .dev-cross > path {
+  opacity: 1;
+}

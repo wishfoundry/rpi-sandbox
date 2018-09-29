@@ -87,9 +87,12 @@ async function once(pin, time = 3, mode = OUTPUT) {
 }
 
 // = actual routine ===================================================
-const DEVMODE = false
+
 
 async function runCycle(sendMessage) {
+
+    let DEVMODE = false
+
     const send = (type, msg, progress) => {
         sendMessage(toMessage(type, msg, progress));
     };
@@ -116,47 +119,67 @@ async function runCycle(sendMessage) {
 
         const filePath = path.resolve(__dirname, './settings.js')
         let settings = JSON.parse(fs.readFileSync(filePath, 'utf8').replace('module.exports = ', ''));
+        const read = (key) => parseInt(settings[key]) || 1;
+        DEVMODE = read('devmode') == 1
 
         await setupAllPins()
         notify('initialized, starting SCF', 1)
 
         await writePin(CABINET_FAN, ON);
         notify('closing chamber', 2)
-        await waitFor(1)
+        await waitFor(read('after_cab_fan_on_pause'))
         await openChamber(false); // close chamber
         notify('turn fan on', 3)
         await writePin(HOT_FAN, ON);
-        await waitFor(1)
+        await waitFor(read('after_hot_fan_on_pause'))
         
         notify('starting heating process 1', 5)
-        await once(PID1, parseInt(settings.pid1))
+        await once(PID1, read('pid1'))
+        await waitFor(read('after_pid1_pause'))
 
         notify('starting heating process 2', 10)
-        await once(PID2, parseInt(settings.pid2))
+        await once(PID2, read('pid2'))
+        notify('after_pid2_pause', 12)
+        await waitFor(read('after_pid2_pause'))
 
         notify('closing bag', 50)
         await openBag(false) // close bag
+        await waitFor(read('after_bag_close_pause'))
+
         notify('begin cooling process', 55)
         await writePin(RADIATOR_FAN, ON)
+        await waitFor(read('after_radiator_on_pause'))
+
         notify('opening vent', 58)
         await openCoolingVent() // open vent actuator
+        await waitFor(read('after_vent_open_pause'))
+
         notify('vacuum on', 60)
         await writePin(VAC, ON)
+        await waitFor(read('after_vac_on_pause'))
 
-        await waitFor(parseInt(settings.cooldown1)) // pause 10 minutes
+        await waitFor(read('cooldown1')) // pause 10 minutes
         notify('opening bag', 65)
         await openBag(true) // open bag
         notify('cooling', 70)
-        await waitFor(parseInt(settings.cooldown2))
+        await waitFor(read('cooldown2'))
         log('cooling complete', 80)
+        // log('hot fan on', 81)
         await writePin(HOT_FAN, OFF)
+        await waitFor(read('after_hot_fan_pause'))
+        log('vac on', 82)
         await writePin(VAC, OFF)
+        await waitFor(read('after_vac_off_pause'))
 
         log('closing cooling vent', 85)
         await openCoolingVent(false) // close vent
+        await waitFor(read('after_cooling_vent_close_pause'))
+        log('radiator off', 86)
         await writePin(RADIATOR_FAN, OFF)
+        await waitFor(read('after_radiator_off_pause'))
         log('opening chamber', 90)
         await openChamber(true) // open chamber
+        await waitFor(read('after_chamber_open_pause'))
         
         await writePin(CABINET_FAN, OFF)
 

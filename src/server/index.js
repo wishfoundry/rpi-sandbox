@@ -40,9 +40,11 @@ app.post('/api/settings', (req, res) => {
 
 const update = (req, res) => {
     /*
+    console.log('updating')
     setTimeout(() => {
         res.send({ message: 'success' })
     }, 3000)
+    return
     /*/
     try {
         const cwd = path.resolve(__dirname, '../../');

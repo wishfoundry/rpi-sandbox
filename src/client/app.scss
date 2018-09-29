@@ -73,11 +73,18 @@ $devColor: red;
   padding: 0.2em 1em;
   text-decoration: none;
   text-align: center;
-  height: 36px;
-  width: 100%;
+  height: 28px;
+  line-height: 20px;
+  font-weight: bold;
+  
   -webkit-tap-highlight-color: transparent;
   outline: none;
   transition: background-color 0.3s, width 0.3s, border-width 0.3s, border-color 0.3s, border-radius 0.3s;
+}
+
+.dev-container .dev-button:active {
+  background-color: red;
+  color: white;
 }
 
 .dev-container .dev-button span {

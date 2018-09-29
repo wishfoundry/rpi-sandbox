@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import LaunchButton from './LaunchButton';
-import AppUpdater from './AppUpdater';
-import AppBuilder from './AppBuilder';
+import Updater from './AppUpdater';
 
 import './app.scss';
 
@@ -19,6 +18,12 @@ function ToggleBtn(props) {
   return (
     <button style={tglBtnStyle} onClick={props.onClick}> </button>
   )
+}
+
+function getInputType(value) {
+  if (typeof value === 'number')
+  return 'number';
+  return 'text'
 }
 
 class Devtools extends Component {
@@ -59,13 +64,7 @@ class Devtools extends Component {
     })
   }
 
-  updateField(e) {
-    
-    const name = e.target.name;
-    let value = parseInt(e.target.value);
-    if (isNaN(value))
-      value = e.target.value;
-
+  updateField(name, value) {
     this.setState({
       ...this.state,
       fields: {
@@ -75,15 +74,25 @@ class Devtools extends Component {
     })
   }
 
+  text = (e) => {
+    this.updateField(e.target.name, e.target.value)
+  }
+  number = (e) => {
+    this.updateField(e.target.name, parseInt(e.target.value || 0))
+  }
+
   renderField({ name, value }) {
+    const type = getInputType(value);
     return (
       <div key={name}>
-        <label>
-          {name}
+        <label style={{ display: 'flex' }}>
+          <span style={{ flex: '0 1 auto', textAlign: 'right' }}>{name} : </span>
           <input
             name={name}
             value={value}
-            onChange={this.updateField} />
+            type={type}
+            style={{ flex: '1 1 auto' }}
+            onChange={this[type]} />
         </label>
 
       </div>
@@ -91,19 +100,18 @@ class Devtools extends Component {
   }
   render() {
     return (
-      <div style={{ background: '#eee', flex: '1 1 auto', maxWidth: '50%'  }}>
+      <div style={{ background: '#eee', flex: '1 1 auto', maxWidth: '50%', overflowY: 'auto'  }}>
         <h2>Settings</h2>
         {
           Object.keys(this.state.fields).map((name) =>
             this.renderField({ name: name, value: this.state.fields[name] }))
         }
-        <div>
-          <button onClick={this.saveFields}>Save</button>
-        </div>
+        
         <hr/>
         <div>
-          <AppUpdater />
-          <AppBuilder />
+          <Updater onClick={this.saveFields}>Save Settings</Updater>
+          <Updater endpoint="/api/pull-latest">Pull latest Update</Updater>
+          <Updater endpoint="/api/rebuild" >Rebuild</Updater>
         </div>
         <pre>{this.state.forceUpdate}</pre>
       </div>

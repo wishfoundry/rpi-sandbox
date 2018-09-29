@@ -18,7 +18,11 @@ const btnStyles = {
     backgroundColor: 'blue !important'
 }
 
-export default class AppUpdater extends Component {
+export default class Updater extends Component {
+
+    static defaultProps = {
+        endpoint: '/api/pull-latest'
+    }
 
     state = {
         status: NOTHING,
@@ -30,7 +34,9 @@ export default class AppUpdater extends Component {
             status: LOADING
         });
 
-        fetch('/api/pull-latest')
+        const exec = this.props.onClick || (() => fetch(this.props.endpoint));
+
+        exec()
             .then(res => res.json())
             .then((res) => {
                 const { message, error } = res;
@@ -55,7 +61,7 @@ export default class AppUpdater extends Component {
         return (
             <Fragment>
                 <Button onClick={this.runUpdate} state={status} classNamespace={'dev-'}>
-                    Pull latest Update!
+                    {this.props.children}
                 </Button>
                 <pre>{response}</pre>
             </Fragment>

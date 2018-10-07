@@ -112,6 +112,7 @@ class Devtools extends Component {
           <Updater onClick={this.saveFields}>Save Settings</Updater>
           <Updater endpoint="/api/pull-latest">Pull latest Update</Updater>
           <Updater endpoint="/api/rebuild" >Rebuild</Updater>
+          <Updater endpoint="/api/kill-chrome" >Kill</Updater>
         </div>
         <pre>{this.state.forceUpdate}</pre>
       </div>

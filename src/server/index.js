@@ -76,7 +76,7 @@ app.get('/api/rebuild', (req, res) => {
 app.get('/api/kill-chrome', (req, res) => {
     try {
         const cwd = path.resolve(__dirname, '../../');
-        execSync('pkill chrome', { cwd: cwd });
+        execSync('pkill chromium', { cwd: cwd });
         res.send({ message: 'success' })
     } catch(e) {
         res.send({ error: e.toString() })

@@ -1,5 +1,10 @@
 # rpi-sandbox
 
+to install a new system:
+```
+wget -O - https://raw.githubusercontent.com/wishfoundry/rpi-sandbox/master/install.sh | sudo bash
+```
+
 to start in dev mode, enter in terminal:
   ```
   npm run dev

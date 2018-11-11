@@ -11,6 +11,7 @@ main () {
   install_node
   install_app
   autostart_chromium
+  create_app_daemon
 #   modify_cron
   show_complete
 }
@@ -165,7 +166,14 @@ modify_cron() {
 }
 
 show_complete() {
-  echo $'\n\n\e[32mAll done! You can restart your PI by typing "sudo reboot -h now"\e[39m\n\n'
+#   echo $'\n\n\e[32mAll done! You can restart your PI by typing "sudo reboot -h now"\e[39m\n\n'
+    echo
+read -p $'\e[33mAll Don! Do you want to reboot? \e[2m(\e[0mY\e[2m/n)\e[0m \e[39m' -r REPLY
+
+    if [[ ! $REPLY =~ ^[Nn]$ ]]
+        then
+        sudo reboot -h now
+    fi
 }
 
 main

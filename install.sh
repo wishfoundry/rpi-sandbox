@@ -12,6 +12,7 @@ main () {
   install_app
   autostart_chromium
   create_app_daemon
+  disable_rainbow_screen
 #   modify_cron
   show_complete
 }
@@ -19,6 +20,9 @@ main () {
 intro() {
   echo "================================================="
   echo $'\e[32mDaylight Kiosk Installation\e[39m'
+
+  sudo apt update
+  sudo apt full-upgrade -y
 }
 
 rotate_monitor() {
@@ -35,6 +39,10 @@ rotate_monitor() {
     echo "Updating monitor config..."
     sudo bash -c "echo 'display_rotate=$REPLY' >> /boot/config.txt"
   fi
+}
+
+disable_rainbow_screen() {
+    sudo bash -c "echo 'disable_splash=1' >> /boot/config.txt"
 }
 
 improve_color() {
@@ -107,6 +115,7 @@ install_node() {
     if [[ $REPLY =~ ^[Yy]$ ]]
     then
         echo "Installing latest node"
+        curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
         sudo apt install -y nodejs
         node -v
         which node
@@ -120,6 +129,8 @@ install_app() {
 
     cd /home/pi
     git clone https://github.com/wishfoundry/rpi-sandbox app
+    cd /home/pi/app
+    npm install
 
 }
 

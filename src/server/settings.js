@@ -1,5 +1,5 @@
 {
-    "label": "Hermedix Sharps Disposer",
+    "label": "gpio control",
     "devmode": 1,
     "after_cab_fan_on_pause": 1,
     "after_hot_fan_on_pause": 1,
@@ -7,7 +7,7 @@
     "after_pid1_pause": 1,
     "pid2": 400,
     "after_pid2_pause": 1,
-    "after_bag_close_pause": 1,
+    "after_aux1_close_pause": 1,
     "after_radiator_on_pause": 1,
     "after_vent_open_pause": 1,
     "after_vac_on_pause": 1,

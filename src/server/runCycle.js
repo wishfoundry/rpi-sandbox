@@ -26,8 +26,8 @@ const VAC = 4;
 const CABINET_FAN = 16;
 const RADIATOR_FAN = 21;
 const HOT_FAN = 13;
-const BAG_CLOSE = 22;
-const BAG_OPEN = 23;
+const AUX1_OPEN = 22;
+const AUX1_CLOSE = 23;
 const COOLING_VENT_OPEN = 19;
 const COOLING_VENT_CLOSE = 20;
 
@@ -43,8 +43,8 @@ async function actuator(open, openPin, closePin, seconds, mode = OUTPUT) {
 const openChamber = async (open = true) =>
     await actuator(open, CHAMBER_OPEN, CHAMBER_CLOSE, 7);
 
-const openBag = async (open = true) =>
-    await actuator(open, BAG_OPEN, BAG_CLOSE, 13);
+const openAux1 = async (open = true) =>
+    await actuator(open, AUX1_CLOSE, AUX1_OPEN, 13);
 
 const openCoolingVent = async (open = true) =>
     await actuator(open, COOLING_VENT_OPEN, COOLING_VENT_CLOSE, 7);
@@ -142,9 +142,9 @@ async function runCycle(sendMessage) {
         notify('after_pid2_pause', 12)
         await waitFor(read('after_pid2_pause'))
 
-        notify('closing bag', 50)
-        await openBag(false) // close bag
-        await waitFor(read('after_bag_close_pause'))
+        notify('closing aux1', 50)
+        await openAux1(false)
+        await waitFor(read('after_aux1_close_pause'))
 
         notify('begin cooling process', 55)
         await writePin(RADIATOR_FAN, ON)
@@ -159,8 +159,8 @@ async function runCycle(sendMessage) {
         await waitFor(read('after_vac_on_pause'))
 
         await waitFor(read('cooldown1')) // pause 10 minutes
-        notify('opening bag', 65)
-        await openBag(true) // open bag
+        notify('opening aux1', 65)
+        await openAux1(true)
         notify('cooling', 70)
         await waitFor(read('cooldown2'))
         log('cooling complete', 80)
@@ -172,13 +172,13 @@ async function runCycle(sendMessage) {
         await waitFor(read('after_vac_off_pause'))
 
         log('closing cooling vent', 85)
-        await openCoolingVent(false) // close vent
+        await openCoolingVent(false)
         await waitFor(read('after_cooling_vent_close_pause'))
         log('radiator off', 86)
         await writePin(RADIATOR_FAN, OFF)
         await waitFor(read('after_radiator_off_pause'))
         log('opening chamber', 90)
-        await openChamber(true) // open chamber
+        await openChamber(true)
         await waitFor(read('after_chamber_open_pause'))
         
         await writePin(CABINET_FAN, OFF)

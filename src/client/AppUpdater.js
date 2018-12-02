@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import Button, { STATE } from 'react-progress-button';
+import Button, { STATE } from './ProgressButton';
 
 const {
     LOADING,

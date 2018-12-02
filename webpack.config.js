@@ -44,7 +44,7 @@ module.exports = function setup(env, argv) {
             styleLoader,
             { loader: 'css-loader', options: { sourceMap: true } },
             { loader: 'resolve-url-loader', options: { sourceMap: true } },
-            { loader: 'sass-loader', options: { sourceMap: true } }
+            // { loader: 'sass-loader', options: { sourceMap: true } }
           ],
         }
       ]
@@ -83,6 +83,7 @@ module.exports = function setup(env, argv) {
     devtool: 'source-map',
     optimization: {
       ...base.optimization,
+      runtimeChunk: 'single',
       minimizer: [
         new UglifyJSPlugin({
           cache: true,

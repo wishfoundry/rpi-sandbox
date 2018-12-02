@@ -1,8 +1,30 @@
 import React, { Component, Fragment } from 'react';
 import LaunchButton from './LaunchButton';
-import Updater from './AppUpdater';
+import LogBook from './logbook/LogBook';
+import Devtool from './config/DevTool';
+import { styled } from '@material-ui/styles';
+import Button from '@material-ui/core/Button';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Grid from '@material-ui/core/Grid';
+import SettingsIcon from '@material-ui/icons/Settings'
+import WifiIcon from '@material-ui/icons/Wifi';
+import LogbookIcon from '@material-ui/icons/LibraryBooksTwoTone';
+import RunIcon from '@material-ui/icons/Timer';
+import { withStyles } from '@material-ui/core/styles';
+import AppBar from '@material-ui/core/AppBar';
+import Typography from '@material-ui/core/Typography'
+import WifiManager from './wifi/WifiManager';
+import JssProvider from 'react-jss/lib/JssProvider';
+import { create } from 'jss';
+import { createGenerateClassName, jssPreset } from '@material-ui/core/styles';
 
-import './app.scss';
+const generateClassName = createGenerateClassName();
+const jss = create({
+  ...jssPreset(),
+  dangerouslyUseGlobalCSS: true,
+});
+
 
 const tglBtnStyle = {
   height: 30,
@@ -20,107 +42,23 @@ function ToggleBtn(props) {
   )
 }
 
-function getInputType(value) {
-  if (typeof value === 'number')
-  return 'number';
-  return 'text'
+const TABS = {
+  RUN: 'Main',
+  CONFIG: 'Settings',
+  LOGBOOK: 'Logbook',
+  WIFI: 'WiFi',
 }
 
-class Devtools extends Component {
+const RunMain = ({ settings }) => (
+  <>
+    <Grid item style={{ flexGrow: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <LaunchButton />
+    </Grid>
+    <Typography variant="h2" style={{ textAlign: 'center' }}>{settings.label}</Typography>
+  </>
+)
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      forceUpdate: '',
-      fields: props.settings,
-    };
-
-    this.runUpdate = this.runUpdate.bind(this);
-    this.saveFields = this.saveFields.bind(this);
-    this.updateField = this.updateField.bind(this);
-  }
-
-  runUpdate() {
-    fetch('/api/force-update')
-      .then((res) => {
-        this.setState({
-          forceUpdate: JSON.stringify(res.json())
-        })
-      })
-    //   .then(res => res.json())
-    //   .then(user => this.setState({ username: user.username }));
-  }
-
-  saveFields() {
-    fetch('/api/settings', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(this.state.fields)
-    }).then(() => {
-      location.reload();
-    })
-  }
-
-  updateField(name, value) {
-    this.setState({
-      ...this.state,
-      fields: {
-        ...this.state.fields,
-        [name]: value,
-      }
-    })
-  }
-
-  text = (e) => {
-    this.updateField(e.target.name, e.target.value)
-  }
-  number = (e) => {
-    this.updateField(e.target.name, parseInt(e.target.value || 0))
-  }
-
-  renderField({ name, value }) {
-    const type = getInputType(value);
-    return (
-      <div key={name}>
-        <label style={{ display: 'flex' }}>
-          <span style={{ flex: '0 1 auto', textAlign: 'right' }}>{name} : </span>
-          <input
-            name={name}
-            value={value}
-            type={type}
-            style={{ flex: '1 1 auto' }}
-            onChange={this[type]} />
-        </label>
-
-      </div>
-    )
-  }
-  render() {
-    return (
-      <div style={{ background: '#eee', flex: '1 1 auto', maxWidth: '50%', overflowY: 'auto'  }}>
-        <h2>Settings</h2>
-        {
-          Object.keys(this.state.fields).map((name) =>
-            this.renderField({ name: name, value: this.state.fields[name] }))
-        }
-        
-        <hr/>
-        <div>
-          <Updater onClick={this.saveFields}>Save Settings</Updater>
-          <Updater endpoint="/api/pull-latest">Pull latest Update</Updater>
-          <Updater endpoint="/api/rebuild" >Rebuild</Updater>
-          <Updater endpoint="/api/kill-chrome" >Kill</Updater>
-        </div>
-        <pre>{this.state.forceUpdate}</pre>
-      </div>
-    )
-  }
-}
-
-export default class App extends Component {
+class App extends Component {
 
   containerStyle = {
     display: 'flex',
@@ -135,7 +73,8 @@ export default class App extends Component {
       isDevtoolsOpen: false,
       settings: {
         label: 'Foo' //Hermedex Sharps Disposer
-      }
+      },
+      tab: TABS.RUN
     };
 
     this.toggleDevtools = this.toggleDevtools.bind(this);
@@ -156,19 +95,34 @@ export default class App extends Component {
     this.setState({ isDevtoolsOpen: !this.state.isDevtoolsOpen })
   }
 
+  switchTab = (e, tab) => {
+    this.setState({ tab });
+  }
+
   render() {
-    const { isDevtoolsOpen, settings } = this.state;
+    const { isDevtoolsOpen, settings, tab } = this.state;
     return (
-      <div style={this.containerStyle}>
-        <div style={{ position: 'relative', width: isDevtoolsOpen ? '50%' : '100%' }}>
-          <h1>{settings.label}</h1>
-          <LaunchButton />
-          <ToggleBtn onClick={this.toggleDevtools} />
-        </div>
-        { isDevtoolsOpen &&
-           <Devtools settings={settings} />
-        }
-      </div>
+      <JssProvider jss={jss} generateClassName={generateClassName}>
+        <Grid container direction="row" style={{height: '100%'}}>
+          <Grid container direction="column" wrap="nowrap">
+          <AppBar position="static"  color="default">
+            <Tabs value={tab} fullWidth onChange={this.switchTab}>
+              <Tab value={TABS.RUN} label={TABS.RUN} icon={<RunIcon/>} />
+              <Tab value={TABS.LOGBOOK} label={TABS.LOGBOOK} icon={<LogbookIcon/>} />
+              <Tab value={TABS.WIFI} label={TABS.WIFI} icon={<WifiIcon/>} />
+              <Tab value={TABS.CONFIG} label={TABS.CONFIG} icon={<SettingsIcon />}/>
+            </Tabs>
+            </AppBar>
+            { tab === TABS.RUN && <RunMain settings={settings} /> }
+            { tab === TABS.CONFIG && <Devtool settings={settings} /> }
+            { tab === TABS.LOGBOOK && <LogBook /> }
+            { tab === TABS.WIFI && <WifiManager /> }
+          </Grid>
+          
+        </Grid>
+      </JssProvider>
     );
   }
 }
+
+export default App

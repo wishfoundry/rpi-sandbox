@@ -1,8 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import Button, { STATE } from 'react-progress-button';
+// import Buttonz, { STATE } from 'react-progress-button';
 // import Socket from 'ws';
 import Sockette from 'sockette';
-import './progress-button.scss';
+// import Button from '@material-ui/core/Button';
+import Button, {STATE} from './ProgressButton';
+import Grid from '@material-ui/core/Grid'
 
 const {
     LOADING,
@@ -13,7 +15,8 @@ const {
 } = STATE;
 
 const messageStyles = {
-    color: 'white',
+    // color: 'white',
+    margin: 10,
     textAlign: 'center'
 };
 
@@ -48,7 +51,9 @@ export default class LaunchButton extends Component {
     }
 
     componentWillUnmount() {
-        this.ws.close();
+        try {
+            this.ws.close();
+        } catch(e) {}
     }
 
     onMessage({ message, progress, type }) {
@@ -83,17 +88,17 @@ export default class LaunchButton extends Component {
     render() {
         const { status, message } = this.state;
         return (
-            <Fragment>
+            <Grid container direction="column" alignItems="center" justify="center">
                 <Button
                     onClick={this.onStart}
                     state={status}
                 >
                     Start
                 </Button>
-                <div style={messageStyles}>
+                <div style={messageStyles} id="message-output">
                     <span style={messageStyles}>{message}</span>
                 </div>
-            </Fragment>
+            </Grid>
         );
     }
 }

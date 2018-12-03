@@ -5,6 +5,7 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
+import Typography from '@material-ui/core/Typography'
 import ListSubheader from '@material-ui/core/ListSubheader'
 import IconButton from '@material-ui/core/IconButton';
 import TimerIcon from '@material-ui/icons/Timer';
@@ -14,12 +15,16 @@ import Grid from '@material-ui/core/Grid';
 
 
 const renderItems = (items) =>
-    items.map(item => (
+    items.map((item, i) => (
         <ListItem>
+            <ListItemAvatar>
+                <span>#{i}</span>
+            </ListItemAvatar>
             <ListItemAvatar >
                 <TimerIcon />
             </ListItemAvatar>
-            <ListItemText primary="Suzie Q." secondary="Jan 1" />
+            <ListItemText primary={item.user} secondary={item.created} />
+            <Typography color="secondary" style={{ flex: '1 1 auto' }}>Sharps Cycle</Typography>
             <ListItemSecondaryAction>
                 <IconButton aria-label="Open">
                     <OpenIcon />
@@ -28,22 +33,15 @@ const renderItems = (items) =>
         </ListItem>
     ))
 
-const dummyItems = [
-    {}, 
-    {}, 
-    {}, 
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-];
+const dummyItems = Array.from({length: 20}, (x,i) => i)
+        .reduce((sum, i) => {
+            sum.items.push({
+                user: 'Suzie Q.',
+                created: new Date(sum.date - (i * (45 * 60 * 1000))).toGMTString()
+            })
+            return sum
+        }, { items: [], date: Date.now() })
+        .items;
 
 export default function LogBook() {
     return (

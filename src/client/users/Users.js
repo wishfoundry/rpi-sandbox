@@ -33,10 +33,10 @@ const ROLES = {
     ADMIN: 'admin',
     SALES: 'sales',
     DEFAULT: 'moron'
-}
+};
 
 const dummyItems = [
-    { name: 'Suzie Q.', type: ROLES.DEFUALT }, 
+    { name: 'Suzie Q.', type: ROLES.DEFAULT }, 
     { name: 'Arnold Z.', type: ROLES.DEFAULT }, 
     { name: 'Charlie C.', type: ROLES.ADMIN }, 
 ];

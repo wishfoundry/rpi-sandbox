@@ -6,20 +6,21 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import ListSubheader from '@material-ui/core/ListSubheader'
+
 import IconButton from '@material-ui/core/IconButton';
-import TimerIcon from '@material-ui/icons/Timer';
+import PersonIcon from '@material-ui/icons/Person';
 import OpenIcon from '@material-ui/icons/OpenInNew';
 import Grid from '@material-ui/core/Grid';
 
 
 
 const renderItems = (items) =>
-    items.map(item => (
+    items.map(person => (
         <ListItem>
             <ListItemAvatar >
-                <TimerIcon />
+                <PersonIcon />
             </ListItemAvatar>
-            <ListItemText primary="Suzie Q." secondary="Jan 1" />
+            <ListItemText primary={person.name} secondary={person.type} />
             <ListItemSecondaryAction>
                 <IconButton aria-label="Open">
                     <OpenIcon />
@@ -28,24 +29,19 @@ const renderItems = (items) =>
         </ListItem>
     ))
 
+const ROLES = {
+    ADMIN: 'admin',
+    SALES: 'sales',
+    DEFAULT: 'moron'
+}
+
 const dummyItems = [
-    {}, 
-    {}, 
-    {}, 
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
+    { name: 'Suzie Q.', type: ROLES.DEFUALT }, 
+    { name: 'Arnold Z.', type: ROLES.DEFAULT }, 
+    { name: 'Charlie C.', type: ROLES.ADMIN }, 
 ];
 
-export default function LogBook() {
+export default function Users() {
     return (
         <Grid item style={{ overflowY: 'auto' }}>
             <List>

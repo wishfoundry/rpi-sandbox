@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import LaunchButton from './LaunchButton';
 import LogBook from './logbook/LogBook';
 import Devtool from './config/DevTool';
+import ConfigMain from './config/ConfigMain';
 import { styled } from '@material-ui/styles';
 import Button from '@material-ui/core/Button';
 import Tabs from '@material-ui/core/Tabs';
@@ -10,8 +11,7 @@ import Grid from '@material-ui/core/Grid';
 import SettingsIcon from '@material-ui/icons/Settings'
 import WifiIcon from '@material-ui/icons/Wifi';
 import LogbookIcon from '@material-ui/icons/LibraryBooksTwoTone';
-import RunIcon from '@material-ui/icons/Timer';
-import { withStyles } from '@material-ui/core/styles';
+import RunIcon from '@material-ui/icons/SlowMotionVideo';
 import AppBar from '@material-ui/core/AppBar';
 import Typography from '@material-ui/core/Typography'
 import WifiManager from './wifi/WifiManager';
@@ -109,12 +109,11 @@ class App extends Component {
             <Tabs value={tab} fullWidth onChange={this.switchTab}>
               <Tab value={TABS.RUN} label={TABS.RUN} icon={<RunIcon/>} />
               <Tab value={TABS.LOGBOOK} label={TABS.LOGBOOK} icon={<LogbookIcon/>} />
-              <Tab value={TABS.WIFI} label={TABS.WIFI} icon={<WifiIcon/>} />
               <Tab value={TABS.CONFIG} label={TABS.CONFIG} icon={<SettingsIcon />}/>
             </Tabs>
             </AppBar>
             { tab === TABS.RUN && <RunMain settings={settings} /> }
-            { tab === TABS.CONFIG && <Devtool settings={settings} /> }
+            { tab === TABS.CONFIG && <ConfigMain settings={settings} /> }
             { tab === TABS.LOGBOOK && <LogBook /> }
             { tab === TABS.WIFI && <WifiManager /> }
           </Grid>

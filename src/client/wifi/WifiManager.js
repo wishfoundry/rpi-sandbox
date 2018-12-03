@@ -34,8 +34,8 @@ const WifiIcon = ({ strength }) => {
 export default function WifiManager() {
     return (
         <List>
-            { networks.map(network => (
-                <ListItem button selected={network.connected}>
+            { networks.map((network, i) => (
+                <ListItem button selected={network.connected} key={i}>
                     <ListItemIcon>
                         <WifiIcon strength={network.strength} />
                     </ListItemIcon>

@@ -1,5 +1,5 @@
 {
-    "label": "gpio control",
+    "label": "SnarkMedX",
     "devmode": 1,
     "after_cab_fan_on_pause": 1,
     "after_hot_fan_on_pause": 1,

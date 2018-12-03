@@ -1,10 +1,7 @@
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 // const nodeExternals = require('webpack-node-externals');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const path = require('path');
 
 const outputDirectory = 'dist';
@@ -12,7 +9,10 @@ const outputDirectory = 'dist';
 module.exports = function setup(env, argv) {
   const devMode = true; //!env.production;
 
-  const styleLoader = devMode ? { loader: 'style-loader', options: { sourceMap: true } } : MiniCssExtractPlugin.loader;
+  const styleLoader = {
+    loader: 'style-loader',
+    options: { sourceMap: true }
+  };
 
   const base = {
     entry: './src/client/index.js',
@@ -37,15 +37,6 @@ module.exports = function setup(env, argv) {
             { loader: 'resolve-url-loader', options: { sourceMap: true } },
             { loader: 'resolve-url-loader', options: { sourceMap: true } },
           ]
-        },
-        {
-          test: /\.s?[ac]ss$/,
-          use: [
-            styleLoader,
-            { loader: 'css-loader', options: { sourceMap: true } },
-            { loader: 'resolve-url-loader', options: { sourceMap: true } },
-            // { loader: 'sass-loader', options: { sourceMap: true } }
-          ],
         }
       ]
     },
@@ -84,30 +75,13 @@ module.exports = function setup(env, argv) {
     optimization: {
       ...base.optimization,
       runtimeChunk: 'single',
-      minimizer: [
-        new UglifyJSPlugin({
-          cache: true,
-          parallel: true,
-          sourceMap: true // set to true if you want JS source maps
-        }),
-        new OptimizeCSSAssetsPlugin({
-          cssProcessorOptions: {
-            map: { inline: false }
-          }
-        })
-      ]
+      
     },
     plugins: [
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify('production')
       }),
-      ...base.plugins,
-      new MiniCssExtractPlugin({
-        // Options similar to the same options in webpackOptions.output
-        // both options are optional
-        filename: '[name].css',
-        chunkFilename: '[id].css'
-      })
+      ...base.plugins
     ],
 
     // TODO: library-ification?

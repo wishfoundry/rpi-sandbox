@@ -10,6 +10,8 @@ import ListSubheader from '@material-ui/core/ListSubheader'
 import IconButton from '@material-ui/core/IconButton';
 import TimerIcon from '@material-ui/icons/Timer';
 import OpenIcon from '@material-ui/icons/OpenInNew';
+import SuccessIcon from '@material-ui/icons/CheckCircleOutline';
+import ErrorIcon from '@material-ui/icons/ErrorOutline';
 import Grid from '@material-ui/core/Grid';
 import Drawer from '@material-ui/core/Drawer';
 import TextField from '@material-ui/core/TextField';
@@ -29,7 +31,9 @@ import AcUnit from '@material-ui/icons/Whatshot';
 import RecordedIcon from '@material-ui/icons/CloudUpload';
 import green from '@material-ui/core/colors/green';
 
+import dummyItems from './dummyItems'  
 
+const CYCLE_TIME = 2389
 
 const renderItems = (items, open) =>
     items.map((item, i) => (
@@ -40,8 +44,14 @@ const renderItems = (items, open) =>
             <ListItemAvatar >
                 <TimerIcon />
             </ListItemAvatar>
-            <ListItemText primary={item.user} secondary={item.created} />
-            <Typography color="secondary" style={{ flex: '1 1 auto' }}>Sharps Cycle</Typography>
+            
+            <ListItemText primary={item.user}  secondary={formatDate(item.created)} />
+            <ListItemIcon>
+                {item.isSuccess ? <SuccessIcon color="primary" /> : <ErrorIcon color="error" />}
+            </ListItemIcon>
+            <Typography color={item.isSuccess ? 'primary' : 'error'} style={{ flex: '1 1 auto' }}>
+                Sharps Cycle
+            </Typography>
             <ListItemSecondaryAction>
                 <IconButton aria-label="Open" onClick={() => open(item)}>
                     <OpenIcon />
@@ -50,15 +60,7 @@ const renderItems = (items, open) =>
         </ListItem>
     ))
 
-const dummyItems = Array.from({ length: 20 }, (x, i) => i)
-    .reduce((sum, i) => {
-        sum.items.push({
-            user: 'Suzie Q.',
-            created: new Date(sum.date - (i * (45 * 60 * 1000))).toGMTString()
-        })
-        return sum
-    }, { items: [], date: Date.now() })
-    .items;
+const formatDate = (date) => date ? date.toGMTString() : ''
 
 export default class LogBook extends Component {
 
@@ -66,7 +68,7 @@ export default class LogBook extends Component {
         super(props);
         this.state = {
             open: false,
-            log: {}
+            log: null
         }
     }
 
@@ -78,7 +80,7 @@ export default class LogBook extends Component {
     }
 
     render() {
-        const { open, log: { created, user } } = this.state;
+        const { open, log } = this.state;
 
         return (
             <Grid item style={{ overflowY: 'auto' }}>
@@ -87,18 +89,62 @@ export default class LogBook extends Component {
                 </List>
                 <Drawer open={open} anchor="right" onClose={() => this.setState({ open: false })} >
                     <Typography variant="h4" >Details</Typography>
-                    
-                    <Table>
-                        <TableRow><TableCell><PersonIcon/> User</TableCell><TableCell>{user}</TableCell></TableRow>
-                        <TableRow><TableCell><CalendarIcon/> Date</TableCell><TableCell>{created}</TableCell></TableRow>
-                        <TableRow><TableCell><ProcessTypeIcon/> Type</TableCell><TableCell>Sharps Cycle</TableCell></TableRow>
-                        <TableRow><TableCell><AcUnit/> Full Temperature</TableCell><TableCell><DoneIcon color="secondary" /></TableCell></TableRow>
-                        <TableRow><TableCell><TimerIcon/> Full Cycle Time</TableCell><TableCell><DoneIcon color="secondary"/></TableCell></TableRow>
-                        <TableRow><TableCell><RecordedIcon/> Recorded</TableCell><TableCell><DoneIcon color="secondary"/></TableCell></TableRow>
-                        <TableRow><TableCell><AllInclusive/> 100% success</TableCell><TableCell><DoneIconAll color="secondary"/></TableCell></TableRow>
-                    </Table>
+                    { log && <LogDetails log={log} />}
                 </Drawer>
             </Grid>
         );
     }
 }
+
+function StatusIcon({ isSuccess }) {
+    return isSuccess ? <DoneIcon /> : <ErrorIcon color="error" />
+}
+
+function LogDetails(props) {
+    const { log: { created, user, isSuccess } } = props
+    return (
+        <Table>
+            <TableRow>
+                <TableCell><PersonIcon /> User</TableCell>
+                <TableCell>{user}</TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell><CalendarIcon /> Start Time</TableCell>
+                <TableCell>{formatDate(created)}</TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell><CalendarIcon /> End Time</TableCell>
+                <TableCell>{formatDate(new Date(created.getTime() + (CYCLE_TIME * 1000)))}</TableCell>
+            </TableRow>
+            <TableRow><TableCell>
+                <CalendarIcon /> Total elapsed time</TableCell>
+                <TableCell>{CYCLE_TIME} seconds</TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell><ProcessTypeIcon /> Type</TableCell>
+                <TableCell>Sharps Cycle H MODEL #400 </TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell><AcUnit /> Full Temperature</TableCell>
+                <TableCell> <StatusIcon isSuccess={isSuccess} /> </TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell><TimerIcon /> Full Cycle Time</TableCell>
+                <TableCell> <StatusIcon isSuccess={isSuccess} /> </TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell><TimerIcon /> Power Failure</TableCell>
+                <TableCell> <StatusIcon isSuccess={isSuccess} /> </TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell><RecordedIcon /> Recorded</TableCell>
+                <TableCell><DoneIcon /></TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell><AllInclusive /> All checks completed</TableCell>
+                <TableCell> <StatusIcon isSuccess={isSuccess} /> </TableCell>
+            </TableRow>
+        </Table>
+    );
+}
+

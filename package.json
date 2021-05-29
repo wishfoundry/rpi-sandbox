@@ -28,7 +28,7 @@
     "react-progress-button": "^5.1.0",
     "rpi-gpio": "^1.0.0",
     "sockette": "^2.0.3",
-    "ws": "^5.2.2"
+    "ws": "^7.4.6"
   },
   "devDependencies": {
     "@babel/core": "^7.1.6",

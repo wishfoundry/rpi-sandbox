@@ -18,7 +18,7 @@
     "@material-ui/core": "^3.6.1",
     "@material-ui/icons": "^3.0.1",
     "@material-ui/styles": "^3.0.0-alpha.2",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "express-ws": "^4.0.0",
     "jss": "^9.8.7",
     "react": "^16.6.3",
